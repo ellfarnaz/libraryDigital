@@ -7,6 +7,7 @@ const userRoutes = require("./src/routes/users");
 const adminRoutes = require("./src/routes/admin");
 const loanRoutes = require("./src/routes/loans");
 const returnRoutes = require("./src/routes/returns");
+const pool = require("./src/config/database"); // Pastikan path ini benar
 
 require("dotenv").config();
 
@@ -39,7 +40,18 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
+async function testDatabaseConnection() {
+  try {
+    const connection = await pool.getConnection();
+    console.log("Successfully connected to the database.");
+    connection.release();
+  } catch (error) {
+    console.error("Error connecting to the database:", error);
+  }
+}
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  testDatabaseConnection();
 });
