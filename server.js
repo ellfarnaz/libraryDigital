@@ -7,7 +7,7 @@ const userRoutes = require("./src/routes/users");
 const adminRoutes = require("./src/routes/admin");
 const loanRoutes = require("./src/routes/loans");
 const returnRoutes = require("./src/routes/returns");
-const pool = require("./src/config/database"); // Pastikan path ini benar
+const bookReportRoutes = require("./src/routes/bookReports");
 
 require("dotenv").config();
 
@@ -27,6 +27,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/books", bookRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/book-reports", bookReportRoutes);
 app.use(
   "/api/uploads",
   (req, res, next) => {
@@ -40,18 +41,7 @@ app.use((err, req, res, next) => {
   res.status(500).send("Something broke!");
 });
 
-async function testDatabaseConnection() {
-  try {
-    const connection = await pool.getConnection();
-    console.log("Successfully connected to the database.");
-    connection.release();
-  } catch (error) {
-    console.error("Error connecting to the database:", error);
-  }
-}
-
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  testDatabaseConnection();
 });

@@ -49,3 +49,15 @@ exports.createReturn = async (req, res) => {
       .json({ message: "Error returning book", error: error.message });
   }
 };
+exports.getAllReturns = async (req, res) => {
+  try {
+    const returns = await Return.findAllWithBookDetails();
+    console.log(returns); // Tambahkan ini untuk melihat struktur data
+    res.json(returns);
+  } catch (error) {
+    console.error("Error fetching returns:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching returns", error: error.message });
+  }
+};

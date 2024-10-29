@@ -1,50 +1,6 @@
 const db = require("../config/database");
 
 class Loan {
-  static async findById(id) {
-    try {
-      const query = `
-      SELECT
-        loans.id,
-        loans.user_id,
-        loans.book_id,
-        loans.loan_date,
-        loans.due_date,
-        loans.status,
-        books.title AS book_title,
-        books.author AS book_author,
-        JSON_UNQUOTE(JSON_EXTRACT(books.genres, '$')) AS book_genres,
-        books.cover_image AS book_cover_image,
-        users.username
-      FROM
-        loans
-      LEFT JOIN
-        books ON loans.book_id = books.id
-      LEFT JOIN
-        users ON loans.user_id = users.id
-      WHERE
-        loans.id = ?
-    `;
-      console.log("Executing SQL query:", query);
-      console.log("Query parameters:", [id]);
-
-      const [rows] = await db.execute(query, [id]);
-      console.log(
-        "Raw database result in findById:",
-        JSON.stringify(rows, null, 2)
-      );
-
-      if (rows.length === 0) {
-        console.log("No loan found with id:", id);
-        return null;
-      }
-
-      return rows[0];
-    } catch (error) {
-      console.error("Error in Loan.findById:", error);
-      throw error;
-    }
-  }
   static async findByUserId(userId) {
     console.log("Finding loans for user ID:", userId);
     const [rows] = await db.execute(

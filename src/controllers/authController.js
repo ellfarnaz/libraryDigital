@@ -22,27 +22,47 @@ exports.register = async (req, res) => {
 
 exports.login = async (req, res) => {
   try {
+    console.log("Login attempt with:", req.body);
     const { nis, password } = req.body;
+
     const user = await User.findByNIS(nis);
+    console.log("User found:", user);
 
     if (!user) {
+      console.log("No user found with NIS:", nis);
       return res.status(401).json({ message: "Invalid NIS or password" });
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
+    console.log("Is password valid:", isPasswordValid);
 
     if (!isPasswordValid) {
+      console.log("Invalid password for NIS:", nis);
       return res.status(401).json({ message: "Invalid NIS or password" });
     }
 
     const token = jwt.sign(
       { id: user.id, nis: user.nis, username: user.username, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      process.env.JWT_SECRET
     );
 
-    res.json({ message: "Login successful", token, role: user.role });
+    // Menambahkan informasi user yang diperlukan oleh client
+    const userInfo = {
+      nis: user.nis,
+      username: user.username,
+      profilePicture: user.profile_picture || null,
+    };
+    console.log("User info to be sent:", userInfo);
+
+    res.json({
+      message: "Login successful",
+      token,
+      role: user.role,
+      user: userInfo,
+    });
+    console.log("Login successful for NIS:", nis);
   } catch (error) {
+    console.error("Login error:", error);
     res
       .status(500)
       .json({ message: "Error during login", error: error.message });
@@ -71,8 +91,7 @@ exports.adminLogin = async (req, res) => {
         username: admin.username,
         role: admin.role,
       },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
+      process.env.JWT_SECRET
     );
 
     res.json({ message: "Admin login successful", token, role: admin.role });
