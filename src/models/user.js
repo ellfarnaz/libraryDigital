@@ -50,6 +50,10 @@ class User {
   static async update(id, updateData) {
     const keys = Object.keys(updateData);
     const values = Object.values(updateData);
+    // Trim the mobile_phone if it exists
+    if (updateData.mobile_phone) {
+      updateData.mobile_phone = updateData.mobile_phone.trim().substring(0, 15); // Adjust 15 to match your database column length
+    }
     const setClause = keys.map((key) => `${key} = ?`).join(", ");
     const query = `UPDATE users SET ${setClause} WHERE id = ?`;
     const [result] = await db.execute(query, [...values, id]);

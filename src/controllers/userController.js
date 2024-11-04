@@ -84,6 +84,14 @@ exports.updateProfile = async (req, res) => {
     const newProfilePicture = req.file ? req.file.filename : null;
     const userId = req.user.id;
 
+    // Validate mobile phone number length
+    if (mobilePhone && mobilePhone.length > 15) {
+      // Adjust 15 to match your database column length
+      return res
+        .status(400)
+        .json({ message: "Mobile phone number is too long" });
+    }
+
     // Ambil data user yang ada
     const currentUser = await User.findById(userId);
     if (!currentUser) {
@@ -100,8 +108,6 @@ exports.updateProfile = async (req, res) => {
         const oldPicturePath = path.join(
           __dirname,
           "..",
-          "..",
-          "src",
           "uploads",
           "profiles",
           currentUser.profile_picture
@@ -111,8 +117,7 @@ exports.updateProfile = async (req, res) => {
           await fs.unlink(oldPicturePath);
           console.log(`Old profile picture deleted: ${oldPicturePath}`);
         } catch (err) {
-          console.error("Error deleting old profile picture:", err);
-          // Lanjutkan proses meskipun gagal menghapus file lama
+          console.log("Old profile picture not found or already deleted");
         }
       }
     }
